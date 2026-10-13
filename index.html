@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AZ kvíz – Politologie, právo a společnost</title>
+<style>
+:root{--bg2:#06609c;--panel:#e8f4fb;--card:#ffffff;--ink:#1c2740;--field:#ffffff;--line:#1c2740;--p1:#f5a623;--p2:#22d3e0;--blk:#5b6b7c;--ok:#168a3a;--no:#c0392b;--w1:#a86400;--w2:#08707f;--chip:#dbe9f3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--panel:#1d2d44;--card:#16233a;--ink:#eaf2fb;--field:#0f1a2c;--line:#7fb4e6;--ok:#4cd57a;--no:#ff8a7a;--w1:#ffbf4d;--w2:#4fe3ee;--chip:#2a3f5c}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100dvh;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='69.28' height='120' viewBox='0 0 69.28 120'%3E%3Cg fill='none' stroke='white' stroke-opacity='.13' stroke-width='2'%3E%3Cpath d='M34.64 0L69.28 20V60L34.64 80L0 60V20Z'/%3E%3Cpath d='M34.64 80V120'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(circle at 50% 25%,#1a9be0,var(--bg2) 75%);background-color:var(--bg2);color:var(--ink);display:flex;flex-direction:column;align-items:center}
+button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.top{width:100%;max-width:900px;display:flex;justify-content:space-between;align-items:flex-start;padding:12px 14px;gap:12px;flex-wrap:wrap}
+.pls{display:flex;flex-direction:column;gap:8px}
+.pl{display:flex;flex-direction:column;padding:8px 30px;color:#1c2740;clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%);opacity:.65;transition:opacity .2s}
+.pl.on{opacity:1}
+.pl input{width:130px;background:transparent;border:0;border-bottom:1px dashed #1c274066;font:800 17px inherit;font-family:inherit;color:#1c2740;padding:0}
+.pl small{font-weight:600;font-size:12px;margin-top:2px}
+#p1{background:var(--p1)}#p2{background:var(--p2)}
+.series{color:#fff;text-align:right;max-width:300px;font-size:13px}
+.score{font-size:34px;font-weight:800;line-height:1}
+.pips{display:flex;gap:6px;justify-content:flex-end;margin:6px 0}
+.pips i{width:12px;height:12px;border-radius:50%;background:#ffffff44;border:2px solid #fff}
+.pips i.a{background:var(--p1);border-color:var(--p1)}.pips i.b{background:var(--p2);border-color:var(--p2)}.pips i.cur{box-shadow:0 0 0 3px #ffffff88}
+.rules{position:relative;margin:6px 0 8px;opacity:.92}
+.btn{font:700 15px inherit;font-family:inherit;border:0;border-radius:10px;padding:10px 16px;background:#fff;color:#1c2740;cursor:pointer;box-shadow:0 2px 0 #9ab}
+.btn.dk{background:#1c2740;color:#fff;box-shadow:0 2px 0 #000}
+.btn:disabled{opacity:.5;cursor:default}
+#board{display:flex;flex-direction:column;align-items:center;--w:min(12.4vw,72px,9.4vh);margin:4px 0 12px}
+.row{display:flex;gap:calc(var(--w)*.06);margin-top:calc(var(--w)*-.237)}
+.row:first-child{margin-top:0}
+.hex{--hx:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 116' preserveAspectRatio='none'%3E%3Cpolygon points='50,8 92,32 92,84 50,108 8,84 8,32' fill='black' stroke='black' stroke-width='14' stroke-linejoin='round'/%3E%3C/svg%3E");position:relative;width:var(--w);aspect-ratio:.866;border:0;padding:0;cursor:pointer;font:800 calc(var(--w)*.36)/1 inherit;font-family:inherit;color:#1c2740;background:#b3c0cd;-webkit-mask:var(--hx) center/100% 100% no-repeat;mask:var(--hx) center/100% 100% no-repeat}
+.hex::before{content:"";position:absolute;inset:5%;background:linear-gradient(#fff 12%,#cdd4dd);-webkit-mask:var(--hx) center/100% 100% no-repeat;mask:var(--hx) center/100% 100% no-repeat}
+.hex span{position:relative}
+@media(hover:hover){.hex:hover:not(:disabled)::before{background:linear-gradient(#fffbe8,#ffe28a)}}
+.hex,.btn,.gl{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.rules summary{cursor:pointer;font-weight:700;list-style:none}
+.rules summary::-webkit-details-marker{display:none}
+.rules summary::after{content:" ▾"}
+.rtxt{position:absolute;z-index:5;top:100%;right:0;width:min(300px,92vw);margin-top:6px;padding:10px 12px;border-radius:10px;background:var(--card);color:var(--ink);text-align:left;box-shadow:0 6px 20px #0006}
+.ring svg{width:100%;height:100%}
+.hex:focus-visible{background:#1c2740}
+.hex.o1{background:#c77d0a}.hex.o1::before{background:linear-gradient(#ffcf70,var(--p1))}
+.hex.o2{background:#119aa6}.hex.o2::before{background:linear-gradient(#80f2f9,var(--p2))}
+.hex.ob{background:#44566a;color:#9fb0c0}.hex.ob::before{background:linear-gradient(#6d7e90,var(--blk))}
+.hex.sel{background:#0e1730;color:#fff}.hex.sel::before{background:#1c2740}
+.hex:disabled{cursor:default}
+#panel{width:min(900px,96vw);background:var(--panel);border-radius:12px 12px 0 0;padding:16px 18px;display:none;grid-template-columns:130px 1fr;gap:16px;align-items:center;margin-top:auto}
+#panel.show{display:grid}
+.ring{position:relative;width:120px;height:120px}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px;color:#1c2740}
+#who{font-weight:800;margin-bottom:2px}
+#cat{display:inline-block;font-size:12px;font-weight:700;background:var(--chip);color:var(--ink);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+#qt{font-weight:600;font-size:clamp(15px,2.4vw,19px);margin-bottom:10px;color:var(--ink)}
+.ans{display:flex;gap:8px;flex-wrap:wrap}
+#inp{flex:1;min-width:160px;font:600 16px inherit;font-family:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink)}
+#res{font-weight:700;margin-top:8px;min-height:1.3em}
+.ok{color:var(--ok)}.no{color:var(--no)}
+#steal{display:none;text-align:center;margin-top:6px}
+#steal.show{display:block}
+.stq{font-weight:700;font-size:clamp(16px,2.6vw,20px);color:var(--ink)}
+.stbtns{display:flex;justify-content:center;gap:14px;margin-top:12px}
+.gl{font:800 20px inherit;font-family:inherit;min-width:92px;min-height:48px;padding:8px 26px;border:2px solid #b3c0cd;border-radius:12px;color:#1c2740;background:linear-gradient(#fff 15%,#cdd4dd);box-shadow:0 2px 0 #8fa0b2;cursor:pointer}
+.gl:active{transform:translateY(1px);box-shadow:none}
+.bar{height:6px;border-radius:3px;background:#0e1730;margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:#2b95d9;transition:width 1s linear}
+#end{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}
+#end.show{display:flex}
+.endbox{background:var(--card);color:var(--ink);padding:28px 36px;border-radius:16px;text-align:center;font-size:19px;max-width:90vw}
+.endbox h2{margin:0 0 10px;font-size:28px}
+@media(max-width:700px),(max-height:520px){
+ body.asking #board,body.asking .series{display:none}
+ body.qopen .series{display:none}
+ body.asking #panel{margin-top:0}
+}
+@media(max-width:560px){
+ .top{padding:8px 10px;gap:6px}
+ .pls{flex-direction:row;gap:6px;width:100%}
+ .pl{flex:1;padding:6px 20px;min-width:0}
+ .pl input{width:100%;font-size:16px}
+ .series{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;text-align:left;width:100%;max-width:none}
+ .score{font-size:28px}
+ .pips{margin:0;justify-content:flex-start}
+ .rules{order:5;flex-basis:100%;margin:0}
+ .rtxt{left:0;right:0;width:auto}
+ #board{margin-bottom:8px}
+ #panel{grid-template-columns:84px 1fr;gap:10px;padding:12px;border-radius:12px;margin:0 0 8px}
+ .ring{width:84px;height:84px}.ring b{font-size:28px}
+ #inp{flex:1 1 100%;min-height:46px}
+ .ans .btn{flex:1;min-height:46px}
+ .endbox{padding:20px 18px;font-size:17px}
+}
+</style></head><body>
+<div class="top">
+ <div class="pls">
+  <div class="pl on" id="p1"><input id="n1" value="Hráč 1" maxlength="14" aria-label="Jméno hráče 1"><small id="s1">0 polí</small></div>
+  <div class="pl" id="p2"><input id="n2" value="Hráč 2" maxlength="14" aria-label="Jméno hráče 2"><small id="s2">0 polí</small></div>
+ </div>
+ <div class="series">
+  <div class="score"><span id="w1">0</span> : <span id="w2">0</span></div>
+  <div class="pips" id="pips" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div id="gameinfo"></div>
+  <details class="rules" id="rules"><summary>Pravidla</summary><div class="rtxt">Spojte svým řetězcem polí všechny <b>tři strany</b> trojúhelníku. Špatná odpověď = šance pro soupeře. Když to nikdo neví, pole zešedne. Série se hraje na dvě vítězné hry. Průběh série se pamatuje jen v tomto panelu prohlížeče.<br><button class="btn dk" id="reset" style="margin-top:8px">Začít sérii znovu</button></div></details>
+ </div>
+</div>
+<div id="board" role="group" aria-label="Herní pole"></div>
+<div id="panel">
+ <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="#fff" stroke="#9aa" stroke-width="8"/><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="#22d3e0" stroke-width="8" stroke-dasharray="327" stroke-dashoffset="0"/></svg><b id="ini"></b></div>
+ <div><div id="who"></div><div id="cat"></div><div id="qt"></div>
+  <div class="ans"><input id="inp" placeholder="Napiš odpověď" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Odpověď"><button class="btn dk" id="ok">Odpovědět</button><button class="btn dk" id="dk">Nevím</button></div>
+  <div id="res" aria-live="polite"></div><div id="steal"><div class="stq" id="stname"></div><div class="stbtns"><button class="gl" id="yes">Ano</button><button class="gl" id="no">Ne</button></div><div class="bar"><i id="bar"></i></div></div></div>
+</div>
+<div id="end"><div class="endbox"><h2 id="et"></h2><p id="es"></p><button class="btn dk" id="again">Pokračovat</button></div></div>
+<script>
+// [kategorie, otázka, správná odpověď (zobrazí se), další přijatelné varianty oddělené |]
+const Q=[
+// ---------- Ideologie ----------
+["Ideologie","Která ideologie staví na svobodě jednotlivce a říká, že každý odpovídá sám za sebe?","Liberalismus","liberalismus"],
+["Ideologie","Která ideologie si cení tradic, vlasti, rodiny a víry a odmítá rychlé změny?","Konzervatismus","konzervatismus"],
+["Ideologie","Která ideologie usiluje o společenskou spravedlnost, aby nikdo nebyl příliš bohatý ani příliš chudý?","Socialismus","socialismus"],
+["Ideologie","Jak se nazývá strana politického spektra, která klade důraz na sociální rovnost a podporu občanů ze strany státu?","Levice","levice|moderní levice|leva strana"],
+["Ideologie","Která ideologie chtěla zrušit soukromé vlastnictví továren a firem, aby majetek patřil všem?","Komunismus","komunismus"],
+["Ideologie","Který karibský ostrovní stát bývá uváděn jako příklad socialistického státu?","Kuba","kuba"],
+["Ideologie","Která západoevropská země je spolu s USA často uváděna jako příklad liberální společnosti?","Nizozemsko","nizozemsko|holandsko"],
+["Ideologie","Která země sousedící s ČR je spolu s Ruskem často uváděna jako příklad konzervativní společnosti?","Polsko","polsko"],
+["Ideologie","Jak se nazývá postoj, který chce zásadní změny společnosti, ale prosazuje je legálně, třeba peticemi a demonstracemi?","Radikalismus","radikalismus"],
+["Ideologie","Jak se nazývá postoj, který odmítá demokracii a základní práva, útočí na menšiny a nevylučuje násilí?","Extremismus","extremismus"],
+["Ideologie","Co mají společného radikalismus a extremismus? Oba chtějí změnit stávající politický … (jedno slovo)","Systém","system|systém|zřízení|rezim|režim|řád|uspořádání|usporadani"],
+["Ideologie","Neonacisté používají číslo 88, protože H je 8. písmeno abecedy. Jaký pozdrav tím skrývají?","Heil Hitler","heil hitler"],
+["Ideologie","Který stát, zaniklý v roce 1991, bývá uváděn jako příklad levicově extremistického režimu?","Sovětský svaz","sovetsky svaz|sssr|svaz sovetskych socialistickych republik"],
+["Ideologie","Kdo byl vůdcem nacistického Německa, tedy pravicově extremistického režimu?","Adolf Hitler","hitler|adolf hitler"],
+["Ideologie","Jak se nazývá myšlení, které staví zájmy vlastního národa nade vše ostatní?","Nacionalismus","nacionalismus"],
+["Ideologie","Jak se nazývá hnutí, které bojuje za rovná práva a postavení žen a mužů?","Feminismus","feminismus"],
+// ---------- Demokracie a stát ----------
+["Demokracie a stát","Jak se nazývá režim, který kontroluje školu, práci i média a drží lidi pod kontrolou strachem?","Totalita","totalita|totalitní režim|totalitarismus|totalitni rezim"],
+["Demokracie a stát","Který stát na Korejském poloostrově je dnes příkladem totalitního režimu?","Severní Korea","severni korea|kldr"],
+["Demokracie a stát","Který stát na Korejském poloostrově je naopak demokracií?","Jižní Korea","jizni korea"],
+["Demokracie a stát","Jak se nazývá typ demokracie, v níž občané hlasují o věcech přímo, třeba v referendu?","Přímá demokracie","přímá|prima|přímá demokracie|prima demokracie"],
+["Demokracie a stát","Jak se nazývá typ demokracie, v níž občané volí zástupce, kteří rozhodují za ně?","Zastupitelská demokracie","zastupitelská|zastupitelska|reprezentativní|reprezentativni|nepřímá|neprima|zastupitelská demokracie|zastupitelska demokracie|reprezentativní demokracie|nepřímá demokracie"],
+["Demokracie a stát","Jak se nazývá hlasování všech oprávněných občanů o jedné konkrétní otázce, např. o vstupu do EU?","Referendum","referendum"],
+["Demokracie a stát","Jak se nazývá cílené šíření jednostranných informací, kterým totalitní režimy (vedle cenzury) ovlivňují lidi?","Propaganda","propaganda"],
+["Demokracie a stát","Jak se nazývá vláda jednoho člověka nebo malé skupiny, která má neomezenou moc a nikomu se nezodpovídá?","Diktatura","diktatura|diktátor"],
+["Demokracie a stát","Jak se nazývá forma vlády, v jejímž čele stojí dědičný panovník, např. král?","Monarchie","monarchie|konstituční monarchie|konstitucni monarchie"],
+["Demokracie a stát","Jak se nazývá forma vlády, v níž stojí v čele státu volený prezident místo panovníka?","Republika","republika"],
+["Demokracie a stát","Kdo byl prezidentem ČR v letech 2013 až 2023?","Miloš Zeman","zeman|milos zeman"],
+["Demokracie a stát","Kolik poslanců zasedá v Poslanecké sněmovně Parlamentu ČR?","200","200|200 poslancu|dve ste"],
+["Demokracie a stát","Kolik senátorů má Senát Parlamentu ČR?","81","81|81 senatoru|osmdesat jedna"],
+["Demokracie a stát","Kdo v ČR může vrátit schválený zákon zpět do Sněmovny (právo veta)?","Prezident","prezident|prezident republiky|prezident cr"],
+["Demokracie a stát","Kterou politickou stranu vede Andrej Babiš?","ANO","ano|ano 2011|hnuti ano"],
+["Demokracie a stát","Kterou politickou stranu vede Tomio Okamura?","SPD","spd|svoboda a prima demokracie"],
+["Demokracie a stát","Která země má podle žebříčku Global Firepower nejsilnější armádu? Stačí jedna z první trojky.","USA","usa|rusko|cina|spojene staty|ruska federace|spojene staty americke"],
+["Demokracie a stát","Jak se jmenuje vojenská aliance, jejímž členem je ČR od roku 1999?","NATO","nato|severoatlanticka aliance"],
+["Demokracie a stát","Jak se nazývá společenství 27 evropských států, jehož je ČR členem od roku 2004?","Evropská unie","evropska unie|eu"],
+["Demokracie a stát","Která organizace sdružuje téměř všechny státy světa a sídlí v New Yorku? Stačí zkratka.","OSN","osn|organizace spojenych narodu"],
+["Demokracie a stát","Který francouzský myslitel osvícenství rozpracoval myšlenku dělby moci na zákonodárnou, výkonnou a soudní?","Montesquieu","montesquieu|charles montesquieu|monteskje"],
+// ---------- Právo ----------
+["Právo","Jak se nazývá nejvyšší zákon státu?","Ústava","ustava|ustava cr|ústava čr"],
+["Právo","Jak se nazývá třetí státní moc (vedle zákonodárné a výkonné), která rozhoduje spory a vydává rozsudky?","Soudní moc","soudní|soudni|soudni moc|soudní moc"],
+["Právo","Jak se celým názvem jmenuje ústavní dokument, který zaručuje základní práva člověka a občana? (5 slov)","Listina základních práv a svobod","listina základních práv a svobod|listina zakladnich prav a svobod"],
+["Právo","Jak se nazývá úvodní slavnostní část Ústavy, která začíná slovy „My, občané České republiky…“?","Preambule","preambule"],
+["Právo","Který soud v Brně rozhoduje o tom, zda je zákon v souladu s Ústavou? Má 15 soudců.","Ústavní soud","ústavní soud|ustavni soud"],
+["Právo","Který soud v Brně je nejvyšší instancí v občanských a trestních věcech?","Nejvyšší soud","nejvyssi soud"],
+["Právo","Který soud v Brně je nejvyšší instancí ve sporech občanů s úřady?","Nejvyšší správní soud","nejvyssi spravni soud|nss"],
+["Právo","Ve kterém městě sídlí Ústavní soud, Nejvyšší soud i Nejvyšší správní soud?","Brno","brno"],
+["Právo","Od kolika let nese člověk v ČR trestní odpovědnost?","15","15|15 let|patnact"],
+["Právo","Od kolika let se mohou lidé v ČR bez souhlasu soudu vzít?","18","18|18 let|osmnact"],
+["Právo","Do kolika let věku platí za studenta v ČR zdravotní pojištění stát?","26","26|26 let|dvacet sest"],
+["Právo","Jak se nazývá schopnost člověka samostatně právně jednat a uzavírat smlouvy?","Svéprávnost","svéprávnost|svepravnost"],
+["Právo","Jak se nazývá schopnost mít práva a povinnosti, kterou člověk získává narozením?","Právní osobnost","pravni osobnost|osobnost|zpusobilost mit prava"],
+["Právo","Jak se nazývá smlouva, ve které si snoubenci před svatbou dohodnou, jak naloží s majetkem? Sepisuje se u notáře.","Předmanželská smlouva","predmanzelska smlouva|předmanželská smlouva|manzelska smlouva|manželská smlouva"],
+["Právo","Jak se nazývá dokument, ve kterém člověk určí, kdo po jeho smrti zdědí majetek?","Závěť","závěť|zaveť|zavet|testament"],
+["Právo","Jak se nazývá osoba, která dítě zastupuje a spravuje jeho jmění, protože jeho rodiče nemohou vykonávat rodičovskou odpovědnost?","Poručník","poručník|porucnik"],
+["Právo","Jak se nazývá péče o dítě po rozchodu rodičů, při které dítě žije střídavě u obou z nich?","Střídavá péče","stridava pece|střídavá péče"],
+["Právo","Jak se nazývá zákonná povinnost rodičů zajistit dítěti bydlení, jídlo a další potřeby, dokud se samo neuživí?","Vyživovací povinnost","vyzivovaci povinnost|vyživovací povinnost|vyživné|vyzivne"],
+["Právo","Jak se v trestním právu nazývá pachatel ve věku od 15 do 18 let?","Mladistvý","mladistvý|mladistvy"],
+["Právo","Jak se nazývá méně závažné protiprávní jednání než trestný čin, třeba parkování na zákazu stání?","Přestupek","prestupek|přestupek"],
+["Právo","Jak se nazývá lehčí kategorie trestných činů, za které hrozí nejvýše 5 let vězení?","Přečin","přečin|precin"],
+["Právo","Jak se v civilním sporu nazývá ten, kdo podá žalobu?","Žalobce","zalobce|žalobce"],
+["Právo","Jak se v civilním sporu nazývá ten, proti komu žaloba míří?","Žalovaný","zalovany|žalovaný"],
+["Právo","Jak se nazývá člověk, proti kterému bylo zahájeno trestní stíhání pro podezření z trestného činu?","Obviněný","obviněný|obvineny"],
+["Právo","Jak se nazývá rozhodnutí soudu o tom, zda je obžalovaný vinen, a o jeho trestu?","Rozsudek","rozsudek"],
+["Právo","Jak se jmenuje zásada, podle které je obviněný nevinný, dokud soud pravomocně neprokáže jeho vinu?","Presumpce neviny","presumpce neviny|presumpce"],
+["Právo","Jaký dokument podepíše zaměstnanec při nástupu do práce a stojí v něm druh práce, místo výkonu práce a den nástupu?","Pracovní smlouva","pracovni smlouva|pracovní smlouva"],
+["Právo","Jak se nazývá nejnižší mzda, kterou musí zaměstnavatel zaměstnanci podle zákona vyplácet?","Minimální mzda","minimalni mzda|minimální mzda"],
+["Právo","Kolik dní máte na odstoupení od smlouvy při nákupu v e-shopu bez udání důvodu?","14","14|14 dni|14 dnů|ctrnact"],
+["Právo","Jak se nazývá postup, když zákazník uplatní u prodejce vadu zakoupeného zboží?","Reklamace","reklamace"],
+["Právo","Jakou smlouvu uzavřete s majitelem, když si od něj chcete pronajmout byt?","Nájemní smlouva","najemni smlouva|nájemní smlouva|nájem|najem"],
+["Právo","Jak se nazývá právní předpis, který vydává vláda k provedení zákona?","Nařízení vlády","narizeni vlady|nařízení vlády|nařízení|narizeni"],
+["Právo","Který úřad kontroluje, jak stát hospodaří s veřejnými penězi? Stačí zkratka.","NKÚ","nku|nejvyssi kontrolni urad"],
+// ---------- Právní profese ----------
+["Právní profese","Který právník sepisuje závěti a další veřejné listiny a úředně ověřuje podpisy?","Notář","notář|notar"],
+["Právní profese","Který právník v trestním řízení podává obžalobu a před soudem zastupuje stát?","Státní zástupce","státní zástupce|prokurátor|statni zastupce"],
+["Právní profese","Kdo vede soudní jednání a vydává rozsudek?","Soudce","soudce"],
+["Právní profese","Jak se nazývá právník, který klienty zastupuje, radí jim a hájí jejich zájmy před soudy a úřady?","Advokát","advokát|advokat"],
+["Právní profese","Jak se nazývá právník, který v trestním řízení hájí obviněného?","Obhájce","obhájce|obhajce|advokát|advokat"],
+["Právní profese","Kdo nuceně vymáhá dluhy na základě rozhodnutí soudu, třeba zabavením majetku nebo srážkami ze mzdy?","Exekutor","exekutor|soudní exekutor|soudni exekutor"],
+["Právní profese","Jak se nazývá odborník (např. lékař nebo odhadce), který pro soud vypracuje odborný posudek?","Znalec","znalec|soudní znalec|soudni znalec"],
+["Právní profese","Kdo je nestranný prostředník, který pomáhá lidem vyřešit spor dohodou mimo soud?","Mediátor","mediátor|mediator"],
+["Právní profese","Jak se nazývá občan bez právního vzdělání, který rozhoduje v soudním senátu spolu se soudci z povolání?","Přísedící","přísedící|prisedici"],
+["Právní profese","Jak se jmenuje funkce, kterou volí Poslanecká sněmovna a která chrání lidi před nezákonným postupem úřadů?","Veřejný ochránce práv","ombudsman|ombudsmanka|verejny ochrance prav|veřejný ochránce práv|ochránce práv|ochrance prav|ochránce"],
+["Právní profese","Který orgán vyšetřuje většinu trestných činů pod dohledem státního zástupce?","Policie","policie|policie čr|policejni organ|policejní orgán"],
+// ---------- Společnost ----------
+["Společnost","Jak se jmenuje věda, která zkoumá společnost a sociální vztahy?","Sociologie","sociologie"],
+["Společnost","Jak se nazývá proces, ve kterém se člověk učí pravidlům, hodnotám a chování své společnosti?","Socializace","socializace"],
+["Společnost","Jak se jmenuje hnutí za práva černochů v USA, které se rozšířilo po smrti George Floyda v roce 2020?","Black Lives Matter","black lives matter|blm"],
+["Společnost","Jak se jmenuje generace narozená zhruba v letech 1997–2012, která vyrostla s chytrým telefonem v ruce?","Generace Z","generace z|generation z|gen z"],
+["Společnost","Které slovo se skrývá pod písmenem Q ve zkratce LGBTQ?","Queer","queer"],
+["Společnost","Jak se říká nenávisti nebo předsudkům vůči Židům?","Antisemitismus","antisemitismus"],
+["Společnost","Jak se říká strachu nebo nenávisti vůči cizincům?","Xenofobie","xenofobie"],
+["Společnost","Která hudební subkultura razí heslo „Udělej si sám“ a protest proti systému?","Punk","punk|punkeri|punkáči"],
+["Společnost","Která subkultura vznikla z post-punku v 80. letech a nosí převážně černé oblečení a líčení?","Gotici","gotici|goth|gothic|gotik|gotika|gotic"],
+["Společnost","Zkratka A.C.A.B. (nebo číslo 1312) je u fotbalových ultras populární. Proti komu míří?","Policii","policii|policie|proti policii"],
+["Společnost","Jak se anglicky přezdívá lidem, kteří skoro všechen volný čas tráví ve fitku? (dvě slova)","Gym rats","gym rats|gymrats|gym rat|gymrat"],
+["Společnost","Jak se jmenuje festival pro fanoušky komiksů, filmů a her, kde se lidé oblékají za oblíbené postavy (cosplay)?","Comic Con","comic con|comiccon"],
+["Společnost","Ve které zemi vznikl pojem „woke“, který původně znamenal bdělost vůči rasové nespravedlnosti?","USA","usa|spojene staty|amerika|spojene staty americke"],
+["Společnost","Jak se říká negativnímu názoru na skupinu lidí, který si vytvoříme předem, aniž bychom je poznali?","Předsudek","předsudek|predsudek|stereotyp"],
+["Společnost","Jak se odborně říká procesu, kdy se lidé hromadně stěhují z vesnic do měst a města rostou?","Urbanizace","urbanizace"],
+["Společnost","Jak se nazývá demografický jev, kdy ve společnosti přibývá seniorů a ubývá dětí a mladých?","Stárnutí populace","starnuti populace|stárnutí populace|starnuti|stárnutí"],
+// ---------- Filozofie ----------
+["Filozofie","Který novověký filozof řekl: „Myslím, tedy jsem“?","René Descartes","descartes|rene descartes|descartes rene"],
+["Filozofie","V jaké zemi se ve starověku zrodila evropská filozofie (6. století př. n. l.)?","Řecko","řecko|starověké řecko|recko"],
+["Filozofie","Který řecký filozof byl učitelem Platóna?","Sokrates","sokrates"],
+["Filozofie","Který řecký filozof založil v Athénách Akademii a napsal dialog Ústava (Stát)?","Platón","platón|platon"],
+["Filozofie","Který filozof byl žákem Platóna a učitelem Alexandra Velikého?","Aristoteles","aristoteles|aristotelés"],
+["Filozofie","Který německý filozof napsal Kritiku čistého rozumu?","Immanuel Kant","kant|immanuel kant"],
+["Filozofie","Který myslitel napsal spolu s Engelsem Komunistický manifest?","Karl Marx","marx|karl marx|karel marx"],
+["Filozofie","Podle svatého Augustina je zlo nepřítomností něčeho. Čeho?","Dobra","dobra|dobro"],
+// ---------- Náboženství ----------
+["Náboženství","Jak se nazývá víra v převtělení duše po smrti do nového těla?","Reinkarnace","reinkarnace"],
+["Náboženství","Které náboženství má na světě nejvíc věřících, zhruba třetinu lidstva?","Křesťanství","křesťanství|krestanstvi"],
+["Náboženství","Jak se jmenují nejstarší posvátné texty hinduismu? Začíná na V.","Védy","védy|vedy"],
+["Náboženství","Která nová náboženská skupina, ke které patří např. Tom Cruise, slibuje dosažení stavu „Clear“?","Scientologie","scientologie|scientologická církev"],
+["Náboženství","Jak se nazývá posvátná kniha islámu?","Korán","koran|korán"],
+["Náboženství","Jak se nazývá prvních pět knih hebrejské Bible, které jsou základem judaismu?","Tóra","tora|tóra"],
+["Náboženství","Kdo založil buddhismus? Říká se mu „probuzený“.","Buddha","buddha|siddhartha gautama|gautama|siddhártha gautama"]
+];
+const $=id=>document.getElementById(id);
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+const SKIP=["a","v","z","s","k","o","u"];
+const initials=d=>/\d/.test(d)?"?":norm(d).split(" ").filter(w=>!SKIP.includes(w)).map(w=>w[0]).join("").toUpperCase();
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];}for(let j=1;j<=b.length;j++)m[0][j]=j;
+ for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]==b[j-1]?0:1));return m[a.length][b.length];}
+function correct(txt,q){const t=norm(txt);if(!t)return false;
+ return [q[2],...q[3].split("|")].some(v=>{v=norm(v);if(!v)return false;return t===v||(v.length>=6&&lev(t,v)<=1)||(v.length>=12&&lev(t,v)<=2)})}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const TIME=30;
+let own,deck=[],cur,starter=1,sel=null,asker,who,stealing,phase,tm,left,over,curQ,score=[0,0],log=[],game=1,seriesDone=false,lastWinner=0;
+const nm=p=>$("n"+p).value.trim()||"Hráč "+p;
+const info=()=>seriesDone?"Série skončila":"Hra "+Math.min(game,3)+" ze 3 – začíná "+nm(starter);
+const freshDeck=()=>shuffle(Q.map((_,i)=>i));
+const nextQ=()=>{if(!deck.length)deck=freshDeck();return Q[deck.pop()]};
+
+// ---- ukládání průběhu série (sessionStorage = každá karta prohlížeče má vlastní, nic se mezi kartami ani zařízeními nesdílí) ----
+const hash=t=>{let h=7;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return h};
+const VER=hash(Q.map(q=>q[1]+q[2]).join("|")); // po změně otázek se starý uložený stav zahodí
+const KEY="azkviz-politologie";
+const store={get(){try{return JSON.parse(sessionStorage.getItem(KEY))}catch(e){return null}},set(o){try{sessionStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}};
+function save(){store.set({ver:VER,names:[$("n1").value,$("n2").value],log,deck})}
+function restore(){const s=store.get();if(!s||s.ver!==VER)return false;
+ ["n1","n2"].forEach((id,i)=>{const n=s.names&&s.names[i];if(typeof n==="string"&&n.trim())$(id).value=n.slice(0,14)});
+ if(!Array.isArray(s.log)||s.log.length>=3||!s.log.every(w=>w===1||w===2))return false;
+ if(!Array.isArray(s.deck)||!s.deck.every(n=>Number.isInteger(n)&&n>=0&&n<Q.length))return false;
+ const a=s.log.filter(w=>w===1).length,b=s.log.length-a;
+ if(a>=2||b>=2)return false; // série byla dohraná
+ log=s.log;score=[a,b];game=log.length+1;starter=log.length%2?2:1;deck=s.deck;seriesDone=false;return true}
+
+function build(){const b=$("board");b.innerHTML="";let n=0;
+ for(let r=0;r<7;r++){const row=document.createElement("div");row.className="row";
+  for(let c=0;c<=r;c++){const i=n++;const h=document.createElement("button");h.className="hex";h.id="h"+i;h.innerHTML="<span>"+(i+1)+"</span>";h.setAttribute("aria-label","Pole "+(i+1));h.onclick=()=>pick(i);row.appendChild(h)}
+  b.appendChild(row)}}
+function rc(i){let r=0;while((r+1)*(r+2)/2<=i)r++;return[r,i-r*(r+1)/2]}
+const idx=(r,c)=>r*(r+1)/2+c;
+function nb(i){const[r,c]=rc(i),o=[];
+ [[r,c-1],[r,c+1],[r-1,c-1],[r-1,c],[r+1,c],[r+1,c+1]].forEach(([a,b])=>{if(a>=0&&a<7&&b>=0&&b<=a)o.push(idx(a,b))});return o}
+function connected(p){const seen=new Set();
+ for(let s=0;s<28;s++){if(own[s]!==p||seen.has(s))continue;
+  const st=[s],comp=[];seen.add(s);
+  while(st.length){const x=st.pop();comp.push(x);nb(x).forEach(y=>{if(own[y]===p&&!seen.has(y)){seen.add(y);st.push(y)}})}
+  let L=0,R=0,B=0;comp.forEach(x=>{const[r,c]=rc(x);if(c===0)L=1;if(c===r)R=1;if(r===6)B=1});
+  if(L&&R&&B)return true}
+ return false}
+const count=p=>own.filter(x=>x===p).length;
+
+function draw(){
+ for(let i=0;i<28;i++){const h=$("h"+i);h.className="hex"+(own[i]===1?" o1":own[i]===2?" o2":own[i]===-1?" ob":"")+(sel===i?" sel":"");h.disabled=!!own[i]||over||sel!==null}
+ $("s1").textContent=count(1)+" polí";$("s2").textContent=count(2)+" polí";
+ $("p1").classList.toggle("on",cur===1);$("p2").classList.toggle("on",cur===2);
+ $("w1").textContent=score[0];$("w2").textContent=score[1];
+ const pips=$("pips").children;
+ // jedna tečka na každou odehranou hru; zvýrazněná tečka = právě hraná hra
+ for(let i=0;i<3;i++){pips[i].className=log[i]===1?"a":log[i]===2?"b":"";if(i===log.length&&!seriesDone)pips[i].classList.add("cur")}
+ $("gameinfo").textContent=info();save()}
+
+function newGame(){own=Array(28).fill(0);cur=starter;sel=null;over=false;phase="idle";
+ $("panel").classList.remove("show");$("end").classList.remove("show");document.body.classList.remove("qopen","asking");clearInterval(tm);hideSteal();draw()}
+function newSeries(){score=[0,0];game=1;starter=1;seriesDone=false;log=[];deck=freshDeck();newGame()}
+
+function pick(i){if(over||own[i]||sel!==null)return;sel=i;asker=cur;who=cur;stealing=false;curQ=nextQ();startQ();draw()}
+function renderWho(){const steal=phase==="steal",p=steal?3-asker:who;
+ $("who").textContent=nm(p)+(steal||stealing?" – šance soupeře":" odpovídá");
+ $("who").style.color=p===1?"var(--w1)":"var(--w2)";
+ $("stname").textContent=nm(p)+", chceš odpovídat?"}
+function startQ(){const q=curQ;phase="answer";$("panel").classList.add("show");document.body.classList.add("asking","qopen");window.scrollTo(0,0);
+ renderWho();
+ $("cat").textContent=q[0];$("qt").textContent=q[1];$("ini").textContent=initials(q[2]);
+ $("inp").value="";$("inp").disabled=false;$("ok").disabled=false;$("dk").disabled=false;$("ok").textContent="Odpovědět";
+ $("res").textContent="";$("res").className="";
+ $("arc").style.stroke=who===1?"#f5a623":"#22d3e0";
+ left=TIME;tick();clearInterval(tm);tm=setInterval(()=>{left--;tick();if(left<=0)wrong()},1000);
+ $("inp").focus();$("panel").scrollIntoView({block:"nearest"})}
+function tick(){$("arc").style.strokeDashoffset=327*(1-left/TIME)}
+function lock(){clearInterval(tm);document.body.classList.remove("asking");$("inp").disabled=true;$("dk").disabled=true}
+let stl=0;const STEAL=8;
+function hideSteal(){clearInterval(tm);$("steal").classList.remove("show");document.querySelector(".ans").style.display=""}
+function showSteal(){document.querySelector(".ans").style.display="none";
+ $("res").className="no";$("res").textContent="Špatná odpověď.";
+ renderWho();
+ $("steal").classList.add("show");
+ const b=$("bar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="";
+ stl=STEAL;clearInterval(tm);tm=setInterval(()=>{stl--;b.style.width=(100*stl/STEAL)+"%";if(stl<=0)stealNo()},1000);
+ $("panel").scrollIntoView({block:"nearest"})}
+function stealYes(){if(phase!=="steal")return;hideSteal();stealing=true;who=3-asker;startQ()}
+function stealNo(){if(phase!=="steal")return;hideSteal();own[sel]=-1;phase="done";$("res").className="no";$("res").textContent="Nikdo neodpověděl správně. Správně: "+curQ[2];$("ok").textContent="Pokračovat";$("ok").disabled=false;draw();$("ok").focus()}
+$("yes").onclick=stealYes;$("no").onclick=stealNo;
+function submit(){if(phase!=="answer")return;if(correct($("inp").value,curQ))right();else wrong()}
+function right(){lock();own[sel]=who;phase="done";$("res").className="ok";$("res").textContent="Správně! Odpověď: "+curQ[2];
+ $("ok").textContent="Pokračovat";$("ok").disabled=false;draw();$("ok").focus();$("panel").scrollIntoView({block:"nearest"})}
+function wrong(){if(phase!=="answer")return;lock();
+ if(!stealing){phase="steal";showSteal();return}
+ own[sel]=-1;phase="done";$("res").className="no";$("res").textContent="Nikdo to nevěděl. Správně: "+curQ[2];$("ok").textContent="Pokračovat";$("ok").disabled=false;draw();$("ok").focus();$("panel").scrollIntoView({block:"nearest"})}
+function finishTurn(){$("panel").classList.remove("show");document.body.classList.remove("qopen","asking");sel=null;cur=3-asker;phase="idle";draw();
+ let w=connected(1)?1:connected(2)?2:0;
+ if(!w&&own.every(x=>x)){w=count(1)>count(2)?1:count(2)>count(1)?2:-1}
+ if(w)endGame(w)}
+$("ok").onclick=()=>{if(phase==="answer")submit();else if(phase==="done")finishTurn()};
+$("dk").onclick=()=>wrong();
+$("inp").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("ok").click()}});
+
+function endGame(w){over=true;
+ if(w<0){lastWinner=0;$("et").textContent="Remíza";$("es").textContent="Pole jsou rozdělená rovným dílem. Hra se opakuje a do série se nezapočítá.";$("again").textContent="Hrát znovu";draw();$("end").classList.add("show");$("again").focus();return}
+ lastWinner=w;score[w-1]++;log.push(w);
+ seriesDone=score[w-1]>=2||game>=3;
+ const a=nm(1)+" "+score[0]+" : "+score[1]+" "+nm(2);
+ if(seriesDone){const sw=score[0]>score[1]?1:2;$("et").textContent="Vítěz série: "+nm(sw)+" 🏆";$("es").textContent="Konečné skóre – "+a;$("again").textContent="Nová série"}
+ else{$("et").textContent="Hru vyhrál "+nm(w)+"! 🎉";$("es").textContent="Skóre série – "+a+". Další hra začíná hráč "+nm(3-starter)+".";$("again").textContent="Další hra"}
+ draw();$("end").classList.add("show");$("again").focus()}
+$("again").onclick=()=>{
+ if(lastWinner===0){return newGame()}
+ if(seriesDone)return newSeries();
+ game++;starter=3-starter;newGame()};
+["n1","n2"].forEach(id=>$(id).addEventListener("input",()=>{if(sel!==null)renderWho();$("gameinfo").textContent=info();save()}));
+let resetTimer;
+$("reset").onclick=()=>{const b=$("reset");
+ if(b.dataset.armed){clearTimeout(resetTimer);delete b.dataset.armed;b.textContent="Začít sérii znovu";$("rules").open=false;newSeries();return}
+ b.dataset.armed="1";b.textContent="Opravdu? Klepni znovu";
+ resetTimer=setTimeout(()=>{delete b.dataset.armed;b.textContent="Začít sérii znovu"},3000)};
+build();if(restore())newGame();else newSeries();
+</script></body></html>
